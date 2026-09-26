@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+
+    <title>DESA-SYNC | Digital Village Accountability</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+                    },
+                    colors: {
+                        gov: {
+                            50: "#eef2ff",
+                            100: "#e0e7ff",
+                            500: "#6366f1",
+                            600: "#4f46e5",
+                            700: "#4338ca",
+                            900: "#1e1b4b"
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+
+    <!-- LocalForage -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <!-- Chart.js -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
+    ></script>
+
+    <!-- CryptoJS -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <!-- QRCode.js -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+        crossorigin="anonymous"
+    ></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .hidden-section {
+            display: none !important;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .login-bg {
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(79, 70, 229, 0.20),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(16, 185, 129, 0.14),
+                    transparent 30%
+                ),
+                #f8fafc;
+        }
+
+        .sidebar-transition {
+            transition:
+                width 220ms ease,
+                transform 220ms ease;
+        }
+
+        .nav-item {
+            transition:
+                background 160ms ease,
+                color 160ms ease,
+                transform 160ms ease;
+        }
+
+        .nav-item:hover {
+            transform: translateX(2px);
+        }
+
+        .pulse-dot {
+            animation: pulseDot 1.7s infinite;
+        }
+
+        @keyframes pulseDot {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .terminal-grid {
+            background-image:
+                linear-gradient(
+                    rgba(148, 163, 184, 0.06) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(148, 163, 184, 0.06) 1px,
+                    transparent 1px
+                );
+            background-size: 24px 24px;
+        }
+
+        .terminal-text {
+            white-space: pre-wrap;
+            font-family:
+                "SFMono-Regular",
+                Consolas,
+                "Liberation Mono",
+                monospace;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .modal-backdrop {
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(5px);
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 16mm;
+            }
+
+            body {
+                background: #fff !important;
+                color: #000 !important;
+            }
+
+            #app-shell,
+            #toast-container,
+            #modal-root {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .print-document {
+                width: 100%;
+                min-height: 100vh;
+                color: #000;
+                font-family:
+                    "Times New Roman",
+                    Times,
+                    serif;
+            }
+
+            .print-header {
+                border-bottom: 3px double #000;
+                padding-bottom: 10px;
+                margin-bottom: 18px;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 10pt;
+            }
+
+            .print-table th,
+            .print-table td {
+                border: 1px solid #000;
+                padding: 7px;
+                text-align: left;
+            }
+
+            .print-table th {
+                background: #eee !important;
+            }
+
+            .print-signature {
+                display: flex;
+                justify-content: flex-end;
+                margin-top: 35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+         AUTHENTICATION
+    ========================================================== -->
+
+    <section
+        id="login-screen"
+        class="login-bg min-h-screen flex items-center justify-center px-5 py-10"
+    >
+        <div class="w-full max-w-5xl grid lg:grid-cols-2 gap-10 items-center">
+
+            <!-- Branding -->
+            <div class="hidden lg:block">
+
+                <div class="flex items-center gap-4 mb-8">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-xl"
+                    >
+                        <i class="fa-solid fa-landmark text-2xl"></i>
+                    </div>
+
+                    <div>
+                        <div class="text-2xl font-extrabold tracking-tight">
+                            DESA<span class="text-indigo-600">-SYNC</span>
+                        </div>
+
+                        <div class="text-xs text-slate-500 font-semibold tracking-[0.22em] uppercase">
+                            Digital Village Accountability
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="text-5xl font-extrabold tracking-tight leading-tight text-slate-900">
+                    Akuntabilitas Desa,
+                    <span class="text-indigo-600">
+                        tanpa batas koneksi.
+                    </span>
+                </h1>
+
+                <p class="mt-6 text-lg leading-8 text-slate-500 max-w-xl">
+                    Platform offline-first untuk pencatatan pengadaan,
+                    validasi transaksi, audit trail kriptografis,
+                    dan rekonsiliasi data keuangan desa.
+                </p>
+
+                <div class="mt-8 grid grid-cols-3 gap-4">
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                        <div class="text-indigo-600 mb-2">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div class="text-sm font-bold text-slate-800">
+                            Offline-first
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            IndexedDB
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                        <div class="text-emerald-600 mb-2">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="text-sm font-bold text-slate-800">
+                            Tamper-evident
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            SHA-256
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                        <div class="text-slate-700 mb-2">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <div class="text-sm font-bold text-slate-800">
+                            Delta Sync
+                        </div>
+                        <div class="text-xs text-slate-500 mt-1">
+                            CRDT
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Login Card -->
+            <div
+                class="glass border border-white shadow-2xl rounded-3xl p-7 sm:p-9"
+            >
+
+                <div class="lg:hidden flex items-center gap-3 mb-8">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center"
+                    >
+                        <i class="fa-solid fa-landmark"></i>
+                    </div>
+
+                    <div>
+                        <div class="font-extrabold text-xl">
+                            DESA<span class="text-indigo-600">-SYNC</span>
+                        </div>
+
+                        <div class="text-[10px] uppercase tracking-widest text-slate-500">
+                            Village Accountability
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-4"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        SISTEM AKTIF
+                    </div>
+
+                    <h2 class="text-3xl font-extrabold tracking-tight">
+                        Selamat Datang
+                    </h2>
+
+                    <p class="text-sm text-slate-500 mt-2">
+                        Masuk ke pusat akuntabilitas keuangan desa.
+                    </p>
+                </div>
+
+                <form id="login-form" class="space-y-5">
+
+                    <div>
+                        <label
+                            for="username"
+                            class="block text-xs font-bold text-slate-600 mb-2"
+                        >
+                            USERNAME
+                        </label>
+
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                            ></i>
+
+                            <input
+                                id="username"
+                                type="text"
+                                autocomplete="username"
+                                required
+                                class="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
+                                placeholder="Masukkan username"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            for="password"
+                            class="block text-xs font-bold text-slate-600 mb-2"
+                        >
+                            PASSWORD
+                        </label>
+
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                            ></i>
+
+                            <input
+                                id="password"
+                                type="password"
+                                autocomplete="current-password"
+                                required
+                                class="w-full h-12 pl-11 pr-12 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition"
+                                placeholder="Masukkan password"
+                            >
+
+                            <button
+                                type="button"
+                                id="toggle-password"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                                aria-label="Tampilkan password"
+                            >
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            for="role"
+                            class="block text-xs font-bold text-slate-600 mb-2"
+                        >
+                            PERAN AKSES
+                        </label>
+
+                        <div class="relative">
+                            <i
+                                class="fa-solid fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                            ></i>
+
+                            <select
+                                id="role"
+                                required
+                                class="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition appearance-none"
+                            >
+                                <option value="kaur">Kaur Keuangan</option>
+                                <option value="inspektorat">Inspektorat</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button
+                        id="login-button"
+                        type="submit"
+                        class="w-full h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-lg shadow-slate-900/10 transition flex items-center justify-center gap-2"
+                    >
+                        <span>Masuk ke Sistem</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                </form>
+
+                <div class="mt-7 pt-6 border-t border-slate-100">
+
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-400">
+                            DESA-SYNC v1.0.0
+                        </span>
+
+                        <span class="flex items-center gap-1.5 text-slate-500">
+                            <i class="fa-solid fa-lock text-emerald-500"></i>
+                            Encrypted Audit
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =========================================================
+         APPLICATION SHELL
+    ========================================================== -->
+
+    <section
+        id="app-shell"
+        class="hidden min-h-screen bg-slate-50"
+    >
+
+        <!-- Sidebar -->
+        <aside
+            id="sidebar"
+            class="fixed z-40 inset-y-0 left-0 w-72 bg-slate-950 text-white flex flex-col sidebar-transition"
+        >
+
+            <!-- Logo -->
+            <div class="h-20 px-6 flex items-center border-b border-white/10">
+
+                <div
+                    class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-900/30"
+                >
+                    <i class="fa-solid fa-landmark"></i>
+                </div>
+
+                <div class="ml-3">
+                    <div class="font-extrabold tracking-tight text-lg">
+                        DESA<span class="text-indigo-400">-SYNC</span>
+                    </div>
+
+                    <div class="text-[9px] uppercase tracking-[0.18em] text-slate-500">
+                        GovTech Accountability
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Profile -->
+            <div class="px-5 py-5 border-b border-white/10">
+
+                <div class="flex items-center gap-3">
+
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-bold"
+                    >
+                        KR
+                    </div>
+
+                    <div class="min-w-0">
+                        <div
+                            id="sidebar-user-name"
+                            class="text-sm font-bold truncate"
+                        >
+                            Kaur Keuangan
+                        </div>
+
+                        <div
+                            id="sidebar-user-role"
+                            class="text-[11px] text-slate-400"
+                        >
+                            Operator Keuangan Desa
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-5 space-y-1">
+
+                <div class="text-[10px] uppercase tracking-[0.18em] text-slate-500 px-3 mb-3">
+                    Workspace
+                </div>
+
+                <button
+                    data-section="dashboard"
+                    class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold bg-indigo-600 text-white"
+                >
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Dasbor Utama</span>
+                </button>
+
+                <button
+                    data-section="pbj"
+                    class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                    <i class="fa-solid fa-cart-shopping w-5 text-center"></i>
+                    <span>Pengadaan PBJ</span>
+                </button>
+
+                <button
+                    data-section="spj"
+                    class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                    <i class="fa-solid fa-file-invoice w-5 text-center"></i>
+                    <span>Laporan SPJ</span>
+                </button>
+
+                <button
+                    data-section="crdt"
+                    class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-white/5 hover:text-white"
+                >
+                    <i class="fa-solid fa-code-branch w-5 text-center"></i>
+                    <span>Konsol δ-CRDT</span>
+                </button>
+
+            </nav>
+
+            <!-- System Status -->
+            <div class="px-5 pb-4">
+
+                <div
+                    class="rounded-xl border border-white/10 bg-white/[0.03] p-4"
+                >
+
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-500">
+                            Storage
+                        </span>
+
+                        <i class="fa-solid fa-database text-emerald-400 text-xs"></i>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+
+                        <span class="text-xs text-slate-300">
+                            IndexedDB Operational
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Logout -->
+            <div class="p-4 border-t border-white/10">
+
+                <button
+                    id="logout-button"
+                    class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition"
+                >
+                    <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+                    Keluar
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="ml-72 min-h-screen">
+
+            <!-- Topbar -->
+            <header
+                id="topbar"
+                class="sticky top-0 z-30 h-20 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-7 flex items-center justify-between"
+            >
+
+                <div>
+                    <div
+                        id="page-eyebrow"
+                        class="text-[10px] uppercase tracking-[0.2em] text-indigo-500 font-bold"
+                    >
+                        Command Center
+                    </div>
+
+                    <h1
+                        id="page-title"
+                        class="text-xl font-extrabold text-slate-900 mt-0.5"
+                    >
+                        Dasbor Utama
+                    </h1>
+                </div>
+
+                <div class="flex items-center gap-4">
+
+                    <!-- Network -->
+                    <button
+                        id="network-toggle"
+                        type="button"
+                        class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold"
+                    >
+                        <span
+                            id="network-dot"
+                            class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"
+                        ></span>
+
+                        <span id="network-label">
+                            Daring
+                        </span>
+
+                        <i class="fa-solid fa-chevron-down text-[9px] ml-1 opacity-60"></i>
+                    </button>
+
+                    <div class="w-px h-8 bg-slate-200"></div>
+
+                    <div class="text-right hidden sm:block">
+                        <div class="text-xs font-bold text-slate-700">
+                            Sistem Keuangan Desa
+                        </div>
+                        <div class="text-[10px] text-slate-400">
+                            Offline-first architecture
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+
+            <!-- Content -->
+            <div class="p-6 lg:p-8">
+
+                <!-- =================================================
+                     DASHBOARD
+                ================================================== -->
+
+                <section
+                    id="section-dashboard"
+                    class="app-section"
+                >
+
+                    <div class="mb-7">
+                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+
+                            <div>
+                                <h2 class="text-2xl font-extrabold tracking-tight">
+                                    Ringkasan Keuangan
+                                </h2>
+
+                                <p class="text-sm text-slate-500 mt-1">
+                                    Monitoring realisasi APBDes secara lokal dan terverifikasi.
+                                </p>
+                            </div>
+
+                            <div
+                                class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 bg-white border border-slate-200 rounded-xl px-4 py-2.5"
+                            >
+                                <i class="fa-regular fa-calendar text-indigo-500"></i>
+                                Tahun Anggaran 2026
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <!-- Metrics -->
+                    <div class="grid md:grid-cols-3 gap-5 mb-6">
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+
+                            <div class="flex items-start justify-between">
+
+                                <div>
+                                    <div class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                        Pagu Anggaran
+                                    </div>
+
+                                    <div
+                                        id="metric-budget"
+                                        class="text-2xl font-extrabold mt-3 text-slate-900"
+                                    >
+                                        Rp 1.000.000.000
+                                    </div>
+
+                                    <div class="text-xs text-slate-400 mt-2">
+                                        Total pagu APBDes
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"
+                                >
+                                    <i class="fa-solid fa-wallet"></i>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+
+                            <div class="flex items-start justify-between">
+
+                                <div>
+                                    <div class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                        Realisasi Belanja
+                                    </div>
+
+                                    <div
+                                        id="metric-realization"
+                                        class="text-2xl font-extrabold mt-3 text-slate-900"
+                                    >
+                                        Rp 0
+                                    </div>
+
+                                    <div
+                                        id="metric-realization-percent"
+                                        class="text-xs text-emerald-600 font-semibold mt-2"
+                                    >
+                                        0,00% dari pagu
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"
+                                >
+                                    <i class="fa-solid fa-arrow-trend-up"></i>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+
+                            <div class="flex items-start justify-between">
+
+                                <div>
+                                    <div class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                        SiLPA
+                                    </div>
+
+                                    <div
+                                        id="metric-silpa"
+                                        class="text-2xl font-extrabold mt-3 text-slate-900"
+                                    >
+                                        Rp 1.000.000.000
+                                    </div>
+
+                                    <div class="text-xs text-slate-400 mt-2">
+                                        Pagu - realisasi
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="w-11 h-11 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center"
+                                >
+                                    <i class="fa-solid fa-scale-balanced"></i>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Chart + system panel -->
+                    <div class="grid xl:grid-cols-3 gap-6">
+
+                        <div class="xl:col-span-2 bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+
+                            <div class="flex items-center justify-between mb-6">
+
+                                <div>
+                                    <h3 class="font-extrabold text-slate-900">
+                                        Integritas Transaksi
+                                    </h3>
+
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        Distribusi transaksi berdasarkan hasil Edge ML.
+                                    </p>
+                                </div>
+
+                                <div
+                                    class="text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2"
+                                >
+                                    Real-time
+                                </div>
+
+                            </div>
+
+                            <div class="h-[330px] flex items-center justify-center">
+                                <canvas id="transaction-chart"></canvas>
+                            </div>
+
+                        </div>
+
+
+                        <div class="bg-slate-900 rounded-2xl shadow-sm p-6 text-white overflow-hidden relative">
+
+                            <div class="absolute -right-12 -top-12 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
+
+                            <div class="relative">
+
+                                <div class="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                    Security Core
+                                </div>
+
+                                <h3 class="text-xl font-extrabold mt-3">
+                                    Audit Integrity
+                                </h3>
+
+                                <p class="text-sm text-slate-400 leading-6 mt-3">
+                                    Setiap transaksi memiliki fingerprint
+                                    SHA-256 sehingga perubahan data dapat
+                                    dideteksi secara deterministik.
+                                </p>
+
+                                <div class="mt-7 space-y-4">
+
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-slate-400">
+                                            Audit records
+                                        </span>
+
+                                        <span
+                                            id="audit-count"
+                                            class="text-sm font-bold"
+                                        >
+                                            0
+                                        </span>
+                                    </div>
+
+                                    <div class="h-px bg-white/10"></div>
+
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-slate-400">
+                                            Hash algorithm
+                                        </span>
+
+                                        <span class="text-xs font-bold text-emerald-400">
+                                            SHA-256
+                                        </span>
+                                    </div>
+
+                                    <div class="h-px bg-white/10"></div>
+
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-slate-400">
+                                            Conflict state
+                                        </span>
+
+                                        <span class="text-xs font-bold text-emerald-400">
+                                            ZERO
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     PBJ
+                ================================================== -->
+
+                <section
+                    id="section-pbj"
+                    class="app-section hidden-section"
+                >
+
+                    <div class="mb-7">
+
+                        <div>
+                            <div class="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
+                                <i class="fa-solid fa-microchip"></i>
+                                Edge Intelligence
+                            </div>
+
+                            <h2 class="text-2xl font-extrabold tracking-tight mt-2">
+                                Pengadaan Barang & Jasa
+                            </h2>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                Validasi harga dilakukan di perangkat sebelum transaksi tersimpan.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Input Card -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-6">
+
+                        <div class="flex items-center justify-between mb-6">
+
+                            <div>
+                                <h3 class="font-extrabold">
+                                    Input Transaksi
+                                </h3>
+
+                                <p class="text-xs text-slate-400 mt-1">
+                                    SSH Dictionary + 3-Tier Edge ML
+                                </p>
+                            </div>
+
+                            <div class="hidden md:flex items-center gap-2">
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                                    TIER 1
+                                </span>
+
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">
+                                    TIER 2
+                                </span>
+
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-50 text-red-700">
+                                    TIER 3
+                                </span>
+                            </div>
+
+                        </div>
+
+
+                        <form
+                            id="transaction-form"
+                            class="grid lg:grid-cols-4 gap-4 items-end"
+                        >
+
+                            <div>
+                                <label
+                                    for="item-name"
+                                    class="block text-xs font-bold text-slate-600 mb-2"
+                                >
+                                    NAMA BARANG
+                                </label>
+
+                                <input
+                                    id="item-name"
+                                    type="text"
+                                    list="ssh-items"
+                                    required
+                                    placeholder="Contoh: Semen"
+                                    class="w-full h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                                >
+
+                                <datalist id="ssh-items">
+                                    <option value="Semen"></option>
+                                    <option value="Laptop"></option>
+                                    <option value="Kertas"></option>
+                                </datalist>
+                            </div>
+
+
+                            <div>
+                                <label
+                                    for="item-volume"
+                                    class="block text-xs font-bold text-slate-600 mb-2"
+                                >
+                                    VOLUME
+                                </label>
+
+                                <input
+                                    id="item-volume"
+                                    type="number"
+                                    min="1"
+                                    step="1"
+                                    required
+                                    placeholder="0"
+                                    class="w-full h-11 rounded-xl border border-slate-200 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                                >
+                            </div>
+
+
+                            <div>
+                                <label
+                                    for="item-price"
+                                    class="block text-xs font-bold text-slate-600 mb-2"
+                                >
+                                    HARGA SATUAN
+                                </label>
+
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                        Rp
+                                    </span>
+
+                                    <input
+                                        id="item-price"
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        required
+                                        placeholder="0"
+                                        class="w-full h-11 rounded-xl border border-slate-200 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500"
+                                    >
+                                </div>
+                            </div>
+
+
+                            <button
+                                type="submit"
+                                id="save-transaction-button"
+                                class="h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold shadow-lg shadow-indigo-600/10 transition flex items-center justify-center gap-2"
+                            >
+                                <i class="fa-solid fa-fingerprint"></i>
+                                Simpan & Audit
+                            </button>
+
+                        </form>
+
+
+                        <!-- SSH reference -->
+                        <div class="mt-5 pt-5 border-t border-slate-100 flex flex-wrap gap-3">
+
+                            <div class="text-xs text-slate-400 mr-2 flex items-center">
+                                <i class="fa-solid fa-book-open mr-2"></i>
+                                SSH Reference:
+                            </div>
+
+                            <div class="px-3 py-1.5 rounded-lg bg-slate-50 text-xs text-slate-600">
+                                Semen <strong>Rp75.000</strong>
+                            </div>
+
+                            <div class="px-3 py-1.5 rounded-lg bg-slate-50 text-xs text-slate-600">
+                                Laptop <strong>Rp10.000.000</strong>
+                            </div>
+
+                            <div class="px-3 py-1.5 rounded-lg bg-slate-50 text-xs text-slate-600">
+                                Kertas <strong>Rp50.000</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Transaction Table -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+
+                            <div>
+                                <h3 class="font-extrabold">
+                                    Data Transaksi Historis
+                                </h3>
+
+                                <p class="text-xs text-slate-400 mt-1">
+                                    DTH • Data Transaction History
+                                </p>
+                            </div>
+
+                            <div
+                                id="transaction-count"
+                                class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full"
+                            >
+                                0 transaksi
+                            </div>
+
+                        </div>
+
+                        <div class="overflow-x-auto scrollbar-thin">
+
+                            <table class="w-full min-w-[900px] text-sm">
+
+                                <thead class="bg-slate-50 border-b border-slate-100">
+
+                                    <tr class="text-left text-[10px] uppercase tracking-wider text-slate-400">
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Waktu
+                                        </th>
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Barang
+                                        </th>
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Volume
+                                        </th>
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Total Harga
+                                        </th>
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Mark-up
+                                        </th>
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Status
+                                        </th>
+
+                                        <th class="px-6 py-4 font-bold">
+                                            Audit Hash
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody
+                                    id="transaction-table-body"
+                                    class="divide-y divide-slate-100"
+                                >
+                                </tbody>
+
+                            </table>
+
+                            <div
+                                id="empty-transactions"
+                                class="py-16 text-center"
+                            >
+                                <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                                    <i class="fa-solid fa-receipt text-xl"></i>
+                                </div>
+
+                                <h4 class="font-bold text-slate-700 mt-4">
+                                    Belum ada transaksi
+                                </h4>
+
+                                <p class="text-xs text-slate-400 mt-1">
+                                    Transaksi yang tersimpan akan muncul di sini.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     SPJ
+                ================================================== -->
+
+                <section
+                    id="section-spj"
+                    class="app-section hidden-section"
+                >
+
+                    <div class="mb-7 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+
+                        <div>
+
+                            <div class="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
+                                <i class="fa-solid fa-file-signature"></i>
+                                Accountability
+                            </div>
+
+                            <h2 class="text-2xl font-extrabold tracking-tight mt-2">
+                                Laporan SPJ
+                            </h2>
+
+                            <p class="text-sm text-slate-500 mt-1">
+                                Dokumen pertanggungjawaban transaksi yang lolos validasi.
+                            </p>
+
+                        </div>
+
+                        <button
+                            id="print-spj-button"
+                            class="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-lg transition"
+                        >
+                            <i class="fa-solid fa-print"></i>
+                            Cetak SPJ
+                        </button>
+
+                    </div>
+
+
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+
+                        <div class="p-6 border-b border-slate-100">
+
+                            <div class="grid md:grid-cols-3 gap-4">
+
+                                <div>
+                                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                                        Pemerintah Desa
+                                    </div>
+
+                                    <div class="font-bold mt-1">
+                                        Desa Harmoni Nusantara
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                                        Tahun Anggaran
+                                    </div>
+
+                                    <div class="font-bold mt-1">
+                                        2026
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="text-[10px] uppercase tracking-wider font-bold text-slate-400">
+                                        Status Dokumen
+                                    </div>
+
+                                    <div class="font-bold mt-1 text-emerald-600">
+                                        Terverifikasi Lokal
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="overflow-x-auto">
+
+                            <table class="w-full min-w-[750px] text-sm">
+
+                                <thead class="bg-slate-50 border-b border-slate-100">
+
+                                    <tr class="text-left text-[10px] uppercase tracking-wider text-slate-400">
+
+                                        <th class="px-6 py-4">
+                                            No.
+                                        </th>
+
+                                        <th class="px-6 py-4">
+                                            Waktu
+                                        </th>
+
+                                        <th class="px-6 py-4">
+                                            Uraian
+                                        </th>
+
+                                        <th class="px-6 py-4">
+                                            Volume
+                                        </th>
+
+                                        <th class="px-6 py-4">
+                                            Nilai
+                                        </th>
+
+                                        <th class="px-6 py-4">
+                                            Status
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody
+                                    id="spj-table-body"
+                                    class="divide-y divide-slate-100"
+                                >
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mt-6 grid md:grid-cols-3 gap-5">
+
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white text-emerald-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+
+                                <div>
+                                    <div class="text-xs text-emerald-700 font-semibold">
+                                        Eligible SPJ
+                                    </div>
+
+                                    <div
+                                        id="spj-eligible-count"
+                                        class="text-xl font-extrabold text-emerald-900"
+                                    >
+                                        0
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5">
+
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white text-amber-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+
+                                <div>
+                                    <div class="text-xs text-amber-700 font-semibold">
+                                        Justifikasi
+                                    </div>
+
+                                    <div
+                                        id="spj-justification-count"
+                                        class="text-xl font-extrabold text-amber-900"
+                                    >
+                                        0
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="bg-slate-900 rounded-2xl p-5 text-white">
+
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white/10 text-indigo-300 flex items-center justify-center">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+
+                                <div>
+                                    <div class="text-xs text-slate-400 font-semibold">
+                                        TTE Simulation
+                                    </div>
+
+                                    <div class="text-sm font-extrabold">
+                                        Kepala Desa
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =================================================
+                     CRDT CONSOLE
+                ================================================== -->
+
+                <section
+                    id="section-crdt"
+                    class="app-section hidden-section"
+                >
+
+                    <div class="mb-7">
+
+                        <div class="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
+                            <i class="fa-solid fa-terminal"></i>
+                            Developer / Jury View
+                        </div>
+
+                        <h2 class="text-2xl font-extrabold tracking-tight mt-2">
+                            Konsol δ-CRDT
+                        </h2>
+
+                        <p class="text-sm text-slate-500 mt-1">
+                            Observability layer untuk demonstrasi sinkronisasi offline-first.
+                        </p>
+
+                    </div>
+
+
+                    <div class="rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl">
+
+                        <!-- Terminal Header -->
+                        <div class="h-12 px-5 border-b border-white/10 flex items-center justify-between">
+
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+
+                                <span class="ml-3 text-xs text-slate-500 font-mono">
+                                    desa-sync@edge-node:~
+                                </span>
+                            </div>
+
+                            <div class="text-[10px] text-emerald-400 font-mono">
+                                CRDT_ENGINE::READY
+                            </div>
+
+                        </div>
+
+
+                        <!-- Terminal -->
+                        <div
+                            id="crdt-console"
+                            class="terminal-grid min-h-[500px] p-6 text-sm leading-7 terminal-text text-slate-300 overflow-auto"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="grid md:grid-cols-3 gap-5 mt-6">
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                Replication
+                            </div>
+                            <div class="text-lg font-extrabold mt-2">
+                                Delta-based
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                Conflict Resolution
+                            </div>
+                            <div class="text-lg font-extrabold mt-2 text-emerald-600">
+                                Deterministic
+                            </div>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                Transport
+                            </div>
+                            <div class="text-lg font-extrabold mt-2">
+                                Minimal Payload
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <!-- =========================================================
+         TOAST
+    ========================================================== -->
+
+    <div
+        id="toast-container"
+        class="fixed z-[100] top-5 right-5 w-[min(390px,calc(100vw-40px))] space-y-3 pointer-events-none"
+    ></div>
+
+
+    <!-- =========================================================
+         MODAL ROOT
+    ========================================================== -->
+
+    <div
+        id="modal-root"
+        class="fixed inset-0 z-[90] hidden"
+    ></div>
+
+
+    <!-- =========================================================
+         PRINT DOCUMENT
+    ========================================================== -->
+
+    <section
+        id="print-document"
+        class="print-only print-document"
+    >
+
+        <div class="print-header text-center">
+
+            <div class="text-sm font-bold">
+                PEMERINTAH KABUPATEN HARMONI NUSANTARA
+            </div>
+
+            <div class="text-lg font-bold">
+                KANTOR DESA HARMONI NUSANTARA
+            </div>
+
+            <div class="text-xs mt-1">
+                Kecamatan Nusantara • Kabupaten Harmoni Nusantara
+            </div>
+
+            <div class="text-xs">
+                Provinsi Banten • Kode Pos 421xx
+            </div>
+
+        </div>
+
+
+        <div class="text-center mb-6">
+
+            <div class="font-bold text-lg underline">
+                SURAT PERTANGGUNGJAWABAN BELANJA
+            </div>
+
+            <div class="text-sm mt-1">
+                Tahun Anggaran 2026
+            </div>
+
+        </div>
+
+
+        <div class="text-sm mb-5">
+
+            <div>
+                <strong>Nomor Dokumen:</strong>
+                DS-SPJ-2026-001
+            </div>
+
+            <div>
+                <strong>Sistem:</strong>
+                DESA-SYNC Offline Accountability
+            </div>
+
+            <div>
+                <strong>Status:</strong>
+                Transaksi Wajar dan Terjustifikasi
+            </div>
+
+        </div>
+
+
+        <table class="print-table">
+
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Waktu</th>
+                    <th>Uraian Barang/Jasa</th>
+                    <th>Volume</th>
+                    <th>Nilai</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody id="print-table-body"></tbody>
+
+        </table>
+
+
+        <div class="print-signature">
+
+            <div class="text-center w-64">
+
+                <div>
+                    Desa Harmoni Nusantara,
+                </div>
+
+                <div class="mb-2">
+                    Kepala Desa
+                </div>
+
+                <div
+                    id="qrcode"
+                    class="flex justify-center my-3"
+                ></div>
+
+                <div class="font-bold underline">
+                    Budi Santoso, S.E.
+                </div>
+
+                <div class="text-sm">
+                    Tanda Tangan Elektronik
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Application JS -->
+    <script src="./app.js"></script>
+
+</body>
+</html>
